@@ -7,7 +7,8 @@ class ResponseFormater
     public static function success($data = null, $message = null, $code  = 200)
     {
         return response()->json([ 
-            'status' => true,
+            'success' => true,
+            'status' => $code,
             'message' => $message,
             'data' => $data
         ], $code);
@@ -16,7 +17,8 @@ class ResponseFormater
 
     public static function error($message = "Something went wrong", $code  = 500, $errors = null) {
         $response = [
-            'status' => false,
+            'success' => false,
+            'status' => $code,
             'message' => $message,
         ];
 
