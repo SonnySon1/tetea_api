@@ -20,11 +20,21 @@ class SigninApiController extends Controller
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'username' => ['The provided credentials are incorrect.']
             ]);
         } 
+        
+        $token = $user->createToken($request->username)->plainTextToken;
 
-        return $user->createToken($request->username)->plainTextToken;
+        return response()->json([
+            'success' => true,
+            'status' => 200,
+            'message' => 'Sign in successful',
+            'data' => [
+                'token' => $token,
+                'user' => $user
+            ]
+        ]);
     }
 
 
@@ -32,6 +42,8 @@ class SigninApiController extends Controller
     public function signout(Request $request) {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Successfully signed out']);
+        return response()->json([
+            'message' => 'Successfully signed out'
+        ]);
     }
 }
