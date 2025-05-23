@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Helpers\ResponseFormater;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Validation\ValidationException;
 
 class MenuApiController extends Controller
@@ -28,10 +29,17 @@ class MenuApiController extends Controller
             $request->validate([
                 'name'        => 'required',
                 'price'       => 'required',
-                'description' => 'required'
+                'description' => 'required',
+                'image'       => 'required|mimes:png,jpg,jpeg,svg,webp'
             ]);
 
+            $image = $request->file('image');
+            $image_extention = $image->getClientOriginalExtension();    
+            $image_name = date('dmyhis').'.'.$image_extention;
+            $image->move(public_path('images/'), $image_name);
+
             $data = [
+                'image'       => $image_name,
                 'name'        => $request->name,
                 'price'       => $request->price,
                 'description' => $request->description,
@@ -66,10 +74,10 @@ class MenuApiController extends Controller
     // update data
     public function update(Request $request, $id) {
          try {
-            $request->validate([
+             $request->validate([
                 'name'        => 'required',
                 'price'       => 'required',
-                'description' => 'required'
+                'description' => 'required',
             ]);
 
             $data = [
@@ -80,6 +88,23 @@ class MenuApiController extends Controller
             ];
 
             $data_menu = Menu::where('id', $id);
+
+            if ($request->hasFile('image')) {
+                $request->validate([
+                    'image'       => 'mimes:png,jpg,jpeg,svg,webp'
+                ]);
+
+                $image = $request->file('image');
+                $image_extention = $image->getClientOriginalExtension();    
+                $image_name = date('dmyhis').'.'.$image_extention;
+                $image->move(public_path('images/'), $image_name);
+    
+                File::delete(public_path('images/'.$data_menu->first()->image));
+                $data['image'] = $image_name;
+            }
+            
+            
+
             $data_menu->update($data);
 
             if ($data_menu) {
