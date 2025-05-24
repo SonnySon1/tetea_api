@@ -120,6 +120,8 @@ class MenuApiController extends Controller
     // delete data
     public function destroy($id) {
         $data_menu = Menu::where('id', $id)->first();
+        File::delete(public_path('images/'.$data_menu->image));
+
         $data_menu->delete();
 
         if ($data_menu->count() > 0) {
